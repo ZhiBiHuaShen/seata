@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slm.seata.storage.mapper.SaleDetailMapper">
+
+    <insert id="save" parameterType="com.slm.seata.storage.entity.SaleDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into sale_detail (merchandise_id, merchandise_name, unit_price, quantity, total_price, account_id, status, created_time)
+        values (#{merchandiseId}, #{merchandiseName}, #{unitPrice}, #{quantity}, #{totalPrice}, #{accountId}, #{status}, #{createdTime})
+    </insert>
+
+</mapper>

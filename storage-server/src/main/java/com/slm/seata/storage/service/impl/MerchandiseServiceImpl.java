@@ -33,7 +33,6 @@ public class MerchandiseServiceImpl implements MerchandiseService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Merchandise get(Long id) {
         return merchandiseMapper.getById(id).orElseThrow(() -> new RuntimeException("商品不存在"));
     }

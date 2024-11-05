@@ -2,7 +2,6 @@ package com.slm.seata.order.model;
 
 import com.slm.seata.order.enums.ResultStatus;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**

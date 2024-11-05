@@ -11,8 +11,6 @@ spring:
   cloud:
     nacos:
       server-addr: localhost:8848
-      discovery:
-        group: SEATA_GROUP
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:

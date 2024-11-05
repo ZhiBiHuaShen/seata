@@ -11,17 +11,23 @@ spring:
   cloud:
     nacos:
       server-addr: localhost:8848
-
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 seata:
+  enabled: true
   application-id: ${spring.application.name}
   tx-service-group: ${spring.application.name}-group
   service:
     vgroup-mapping:
       account-server-group: default
-    grouplist:
-      default: 10.0.0.197:8091
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 127.0.0.1:8848
+      namespace:
+      group: SEATA_GROUP
+  data-source-proxy-mode: XA

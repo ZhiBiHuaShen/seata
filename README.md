@@ -49,34 +49,7 @@ seata:
 
 注意这里的 seata.conf 最后一行的 `data-id: seataServer.properties` 这里有一份 seata 在 nacos 的配置。此时我们需要在 nacos 创建一份同名文件（注意 Group 需要和 application.yaml 中的 seata.conf.group 一致）
 
-seataServer.properties 同样有一份配置样例，在 seata 安装目录下的 script/config-center/config.txt 中，我们按需复制覆盖配置即可，此处我们覆盖 store 存储方式为 db，将 store 的三个 mode 修改为 db，并且将 store.db 部分 copy 过来，修改数据库的 url、user 和 password 即可
-
-```properties
-#Transaction storage configuration, only for the server. The file, db, and redis configuration values are optional.
-store.mode=db
-store.lock.mode=db
-store.session.mode=db
-#Used for password encryption
-store.publicKey=
-
-#These configurations are required if the `store mode` is `db`. If `store.mode,store.lock.mode,store.session.mode` are not equal to `db`, you can remove the configuration block.
-store.db.datasource=druid
-store.db.dbType=mysql
-store.db.driverClassName=com.mysql.cj.jdbc.Driver
-store.db.url=jdbc:mysql://127.0.0.1:3306/seata?useUnicode=true&rewriteBatchedStatements=true
-store.db.user=root
-store.db.password=123456
-store.db.minConn=5
-store.db.maxConn=30
-store.db.globalTable=global_table
-store.db.branchTable=branch_table
-store.db.distributedLockTable=distributed_lock
-store.db.queryLimit=100
-store.db.lockTable=lock_table
-store.db.maxWait=5000
-```
-
-数据库脚本：script/server/db/mysql.sql
+seataServer.properties 同样有一份配置样例，在 seata 安装目录下的 script/config-center/config.txt 中，我们按需复制覆盖配置即可，例如：AT 模式需要的 db store 支持
 
 **启动 seata**
 
@@ -259,6 +232,78 @@ public Order createOrder(CreateOrder createOrder) {
 ```
 
 PS：实操发现调用查询服务不可使用 @Transactional(readOnly = true)，否则会报错
+
+#### AT 模式
+
+AT 模式是 Seata 创新的一种非侵入式的分布式事务解决方案，Seata 在内部做了对数据库操作的代理层，我们使用 Seata AT 模式时，实际上用的是 Seata 自带的数据源代理 DataSourceProxy，Seata 在这层代理中加入了很多逻辑，比如插入回滚 undo_log 日志，检查全局锁等。
+
+**整体机制**
+
+两阶段提交协议的演变：
+
+- 一阶段：业务数据和回滚日志记录在同一个本地事务中提交，释放本地锁和连接资源。
+- 二阶段：
+  - 提交异步化，非常快速地完成。
+  - 回滚通过一阶段的回滚日志进行反向补偿。
+
+AT 模式操作上像是 XA 模式的优化版本，同样是非侵入式，只需进行一些额外配置即可实现 XA 到 AT 模式的切换
+
+**设置 seata.properties**
+
+此处我们覆盖 store 存储方式为 db，将 store 的三个 mode 修改为 db，并且将 store.db 部分 copy 过来，修改数据库的 url、user 和 password 即可
+
+```properties
+#Transaction storage configuration, only for the server. The file, db, and redis configuration values are optional.
+store.mode=db
+store.lock.mode=db
+store.session.mode=db
+#Used for password encryption
+store.publicKey=
+
+#These configurations are required if the `store mode` is `db`. If `store.mode,store.lock.mode,store.session.mode` are not equal to `db`, you can remove the configuration block.
+store.db.datasource=druid
+store.db.dbType=mysql
+store.db.driverClassName=com.mysql.cj.jdbc.Driver
+store.db.url=jdbc:mysql://127.0.0.1:3306/seata?useUnicode=true&rewriteBatchedStatements=true
+store.db.user=root
+store.db.password=123456
+store.db.minConn=5
+store.db.maxConn=30
+store.db.globalTable=global_table
+store.db.branchTable=branch_table
+store.db.distributedLockTable=distributed_lock
+store.db.queryLimit=100
+store.db.lockTable=lock_table
+store.db.maxWait=5000
+```
+
+数据库脚本：script/server/db/mysql.sql
+
+为每一个业务数据库新增回滚日志表
+
+```sql
+CREATE TABLE `undo_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `branch_id` bigint(20) NOT NULL,
+  `xid` varchar(100) NOT NULL,
+  `context` varchar(128) NOT NULL,
+  `rollback_info` longblob NOT NULL,
+  `log_status` int(11) NOT NULL,
+  `log_created` datetime NOT NULL,
+  `log_modified` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
+
+**修改 seata 数据源代理模式**
+
+```yaml
+seata:
+  data-source-proxy-mode: AT
+```
+
+就这样，不需要修改业务代码，从配置上调整就可以无缝切换 AT！！！
 
 ---
 

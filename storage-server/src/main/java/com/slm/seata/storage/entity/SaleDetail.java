@@ -18,7 +18,8 @@ public class SaleDetail {
     private BigDecimal quantity;
     private BigDecimal totalPrice;
     private Long accountId; // 下单客户
-    private Integer status; // 状态：1.正常、9.撤销
+    private Integer status; // 状态：0.待确认、1.正常、9.撤销
+    private String requestId;
     private LocalDateTime createdTime;
 
 }

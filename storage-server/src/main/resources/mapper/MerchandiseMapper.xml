@@ -17,4 +17,11 @@
         update merchandise set quantity = quantity - #{quantity} where id = #{id} and quantity - #{quantity} &gt;= 0
     </update>
 
+    <update id="cancel" parameterType="java.lang.String">
+        update merchandise
+        join sale_detail sd on merchandise.id = sd.merchandise_id
+        set merchandise.quantity = merchandise.quantity + sd.quantity
+        where sd.request_id = #{requestId}
+    </update>
+
 </mapper>

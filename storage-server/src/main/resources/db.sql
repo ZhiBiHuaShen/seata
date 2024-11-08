@@ -17,6 +17,7 @@ create table sale_detail
     quantity         decimal(10, 2) null comment '数量',
     total_price      decimal(10, 2) null comment '总价',
     account_id       bigint         null comment '账户id',
-    status           smallint       null comment '状态：1.正常、2.撤销',
+    status           smallint       null comment '状态：0.待确认、1.正常、2.撤销',
+    request_id       varchar(255)   null comment '请求id',
     created_time     datetime       null comment '创建时间'
 );

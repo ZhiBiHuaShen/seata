@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * 商品接口
@@ -50,7 +51,7 @@ public class MerchandiseController {
      */
     @PutMapping("{id}/deduct")
     public ApiResponse<?> deduct(@PathVariable Long id, @RequestParam BigDecimal quantity, @RequestParam Long buyerId) {
-        merchandiseService.deduct(id, quantity, buyerId);
+        merchandiseService.deduct(UUID.randomUUID().toString(), id, quantity, buyerId);
         return ApiResponse.ok();
     }
 

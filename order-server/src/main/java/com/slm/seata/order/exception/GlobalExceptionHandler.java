@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<String> handler(Exception e) {
-        log.error(e.getMessage(), e);
+        log.error("系统发生异常：{}", e.getMessage(), e);
         return ApiResponse.failure(ResultStatus.ERROR, e.getMessage());
     }
 

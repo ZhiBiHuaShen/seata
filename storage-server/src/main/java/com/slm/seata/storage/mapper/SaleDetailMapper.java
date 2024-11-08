@@ -8,4 +8,8 @@ public interface SaleDetailMapper {
 
     void save(SaleDetail saleDetail);
 
+    Long confirm(String requestId);
+
+    Long cancel(String requestId);
+
 }

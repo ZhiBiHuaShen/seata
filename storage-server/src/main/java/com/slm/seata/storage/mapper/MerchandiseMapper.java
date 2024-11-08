@@ -16,4 +16,6 @@ public interface MerchandiseMapper {
 
     Long deduct(@Param("id") Long id, @Param("quantity") BigDecimal quantity);
 
+    Long cancel(String requestId);
+
 }

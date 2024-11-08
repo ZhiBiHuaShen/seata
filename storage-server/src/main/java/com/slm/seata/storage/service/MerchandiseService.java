@@ -2,12 +2,17 @@ package com.slm.seata.storage.service;
 
 import com.slm.seata.storage.entity.Merchandise;
 import com.slm.seata.storage.model.MerchandiseCreate;
+import io.seata.rm.tcc.api.BusinessActionContext;
+import io.seata.rm.tcc.api.BusinessActionContextParameter;
+import io.seata.rm.tcc.api.LocalTCC;
+import io.seata.rm.tcc.api.TwoPhaseBusinessAction;
 
 import java.math.BigDecimal;
 
 /**
  * 商品服务
  */
+@LocalTCC
 public interface MerchandiseService {
 
     /**
@@ -29,9 +34,16 @@ public interface MerchandiseService {
     /**
      * 扣减库存
      *
+     * @param requestId 请求id
      * @param id 商品id
      * @param quantity 扣减数量
+     * @param buyerId 购买账户
      */
-    void deduct(Long id, BigDecimal quantity, Long buyerId);
+    @TwoPhaseBusinessAction(name = "prepare", useTCCFence = true)
+    void deduct(@BusinessActionContextParameter(paramName = "requestId") String requestId, Long id, BigDecimal quantity, Long buyerId);
+
+    boolean commit(BusinessActionContext context);
+
+    boolean rollback(BusinessActionContext context);
 
 }

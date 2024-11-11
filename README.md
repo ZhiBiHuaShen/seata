@@ -487,3 +487,13 @@ DEFAULT CHARSET = utf8mb4;
 
 [1]:https://seata.apache.org/zh-cn/docs/user/mode/tcc	"Seata TCC 模式"
 [2]:https://seata.apache.org/zh-cn/blog/seata-tcc-fence/	"TCC 模式的幂等、悬挂和空回滚问题"
+
+#### Saga 模式
+
+Saga 模式是 SEATA 提供的长事务解决方案，在 Saga 模式中，业务流程中每个参与者都提交本地事务，当出现某一个参与者失败则补偿前面已经成功的参与者，一阶段正向服务和二阶段补偿服务都由业务开发实现。
+
+![Saga模式示意图](assets/README/TB1Y2kuw7T2gK0jSZFkXXcIQFXa-445-444.png)
+
+该概念最初由普林斯顿大学 Garcia-Molina, Hector / Salem, Kenneth 在1987年发表的论文 Sagas 里提及
+
+Sagas 原文 PDF 地址：https://www.cs.princeton.edu/research/techreps/TR-070-87
